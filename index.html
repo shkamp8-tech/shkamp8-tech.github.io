@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en" class="home">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Portfolio — Sarrón Harfsterkamp, Experimental Modular Product Designer</title>
+  <meta name="description" content="Portfolio of Sarrón Harfsterkamp, experimental modular product designer based in Eindhoven. Metal, electronics and light.">
+  <script>if (!location.hash && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("is-intro", "intro-hold");</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&family=Inter+Tight:wght@500;600&family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23F2F0EB'/%3E%3Crect x='2' y='2' width='4' height='4' fill='%23E86A33'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================================================================ INTRO -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__bg"></div>
+  <canvas class="intro__cv"></canvas>
+  <div class="intro__ui mono">
+    <span class="tl">Sarrón Harfsterkamp</span>
+    <span class="tr">Portfolio — Vol. 01<br><span class="grey">2024 — 2026</span></span>
+    <span class="bl"><b id="introPct">000</b> %</span>
+    <span class="br" id="introStep">01 Explore</span>
+  </div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="gridlines" aria-hidden="true"><div class="g12"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__box"></span><span class="cursor__t">X 0000 · Y 00000</span></div>
+
+<!-- ================================================================ BAR -->
+<header class="bar">
+  <a href="#top" class="bar__logo" aria-label="Logo placeholder — back to cover"><i></i><i></i><i></i><i></i><span class="mono">Logo</span></a>
+  <nav class="bar__nav mono">
+    <a href="#about">About</a>
+    <a href="#work">Contents</a>
+    <a href="flux-solid.html">01</a>
+    <a href="one-hundred.html">02</a>
+    <a href="tension.html">03</a>
+    <a href="contour.html">04</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <span class="bar__page mono" id="page">01 / 04</span>
+  <span class="bar__prog" aria-hidden="true"></span>
+</header>
+
+<!-- ================================================================ COVER -->
+<section class="hero screen" id="top" data-label="Cover">
+  <h1 class="sr-only">Portfolio — Sarrón Harfsterkamp, Experimental Modular Product Designer</h1>
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <p class="hero__word" aria-hidden="true">Portfolio<sup class="mono">Vol. 01<br>2024 — 2026</sup></p>
+  <p class="hero__intro">One simple shape. Repeated. Restricted. <em>Unexpected.</em></p>
+
+  <figure class="lens" id="lens">
+    <div class="lens__stack">
+      <img class="lens__blur" src="img/20260608-234926.jpg" alt="">
+      <img class="lens__sharp" src="img/20260608-234926.jpg" alt="Tension pendant lamp, lit, 2026">
+      <span class="lens__ring" aria-hidden="true"></span>
+    </div>
+    <figcaption class="mono"><span>Fig. 00 — Tension</span><span class="signal">Hover to discover</span></figcaption>
+  </figure>
+
+  <canvas id="pixelname" aria-hidden="true"></canvas>
+
+  <div class="hero__foot g12 mono">
+    <span>Experimental modular product designer — Eindhoven</span>
+    <span class="steps" id="steps"><span>01 Explore</span> → <span>02 Discover</span> → <span>03 Improve</span></span>
+    <span>04 projects · Scroll ↓</span>
+  </div>
+</section>
+
+<!-- ================================================================ ABOUT -->
+<section class="about screen" id="about" data-label="About">
+  <div class="about__orb" aria-hidden="true"></div>
+  <div class="rule mono"><span>00 — About</span><span>Designer's statement</span><span>Metal · Electronics · Light</span></div>
+
+  <div class="g12">
+    <div class="about__label mono"><span class="pix">00</span>Sarrón<br>Harfsterkamp</div>
+
+    <figure class="portrait">
+      <div class="portrait__slot">
+        <i></i><i></i><i></i><i></i>
+        <span class="mono">Portrait — TBD<br><span class="grey">4 : 5 · placeholder</span></span>
+      </div>
+      <figcaption class="mono"><span>Fig. 00.1</span><span>Photo coming soon</span></figcaption>
+    </figure>
+
+    <div class="statement">
+      <h2>Complexity emerging from simplicity — through <em>material tension</em>, restrictions and repetition.</h2>
+      <p>My name is Sarrón Harfsterkamp and I am an experimental modular product designer based in Eindhoven. I work through <mark>material experimentation and iteration</mark> to make physical and functional objects and structures.</p>
+      <button class="more-btn mono" aria-expanded="false" aria-controls="m-about"><span class="pm">+</span><span class="lbl" data-less="Less">Full statement</span></button>
+      <div class="more" id="m-about"><div>
+        <p>Unexpected possibilities from simple rules, material tension and restrictions are what I like to explore — it allows me to surprise myself and others.</p>
+        <p><mark>First explore, then discover and improve.</mark> Starting with material samples, testing different possibilities and iterating on unexpected outcomes is my way of working. Doing physical research first and finding the right balance between complexity and simplicity is a must in every project.</p>
+        <p>For example: a modular lighting system where one simple shape, repeated through restrictions, creates a complex structure. My research can become lighting sculptures or other functional products that invite people to explore, discover or even interact with something unexpected. Often made with metal, electronics and light.</p>
+      </div></div>
+    </div>
+
+    <ol class="method">
+      <li><span class="pix signal">01</span><b>Explore</b><p>Material samples first — testing what a material wants to do.</p></li>
+      <li><span class="pix signal">02</span><b>Discover</b><p>Following the unexpected outcome of simple rules.</p></li>
+      <li><span class="pix signal">03</span><b>Improve</b><p>Iterating towards the balance of simple and complex.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================================================================ CONTENTS + SHOWCASE -->
+<section class="index screen" id="work" data-label="Contents">
+  <div class="rule mono"><span>Contents</span><span>Selected work — 04 projects</span><span>2024 — 2026</span></div>
+
+  <div class="show" aria-label="Project showcase">
+    <a class="show__p" href="flux-solid.html">
+      <img src="img/20260114-213459.jpg" alt="Flux / Solid — mirror cells in aluminium frame">
+      <img src="img/20251219-104050.jpg" alt="Flux / Solid — cell frame with acrylic cells">
+      <span class="show__dots" aria-hidden="true"><i></i><i></i></span>
+      <span class="show__cap"><span class="pix">01</span><b>Flux / Solid</b><span class="mono">→</span></span>
+    </a>
+    <a class="show__p" href="one-hundred.html">
+      <img src="img/20251029-130600.jpg" alt="One / Hundred — lit triangular module">
+      <img src="img/20251029-130328.jpg" alt="One / Hundred — iterations side by side">
+      <span class="show__dots" aria-hidden="true"><i></i><i></i></span>
+      <span class="show__cap"><span class="pix">02</span><b>One / Hundred</b><span class="mono">→</span></span>
+    </a>
+    <a class="show__p" href="tension.html">
+      <img src="img/20260608-234947.jpg" alt="Tension — pendant lamp, lit">
+      <img src="img/20260623-173104-1.jpg" alt="Tension — three lamps exhibited">
+      <span class="show__dots" aria-hidden="true"><i></i><i></i></span>
+      <span class="show__cap"><span class="pix">03</span><b>Tension</b><span class="mono">→</span></span>
+    </a>
+    <a class="show__p" href="contour.html">
+      <img src="img/20241018-002949.jpg" alt="Contour — metal rod chair">
+      <img src="img/20241018-003058.jpg" alt="Contour — chair seen from above">
+      <span class="show__dots" aria-hidden="true"><i></i><i></i></span>
+      <span class="show__cap"><span class="pix">04</span><b>Contour</b><span class="mono">→</span></span>
+    </a>
+  </div>
+
+  <ol class="index__list">
+    <li><a href="flux-solid.html"><span class="n mono">01</span><span class="t">Flux / Solid</span><span class="k mono">Interactive light object</span><span class="m mono">Aluminium · Mirror · Servos</span><span class="y mono">2025—26</span><span class="arr">→</span></a></li>
+    <li><a href="one-hundred.html"><span class="n mono">02</span><span class="t">One / Hundred</span><span class="k mono">Modular lighting system</span><span class="m mono">Aluminium · LED · 3D print</span><span class="y mono">2025</span><span class="arr">→</span></a></li>
+    <li><a href="tension.html"><span class="n mono">03</span><span class="t">Tension</span><span class="k mono">Pendant lamp</span><span class="m mono">Strip material · Light</span><span class="y mono">2026</span><span class="arr">→</span></a></li>
+    <li><a href="contour.html"><span class="n mono">04</span><span class="t">Contour</span><span class="k mono">Chair</span><span class="m mono">Metal rod · Welding</span><span class="y mono">2024</span><span class="arr">→</span></a></li>
+  </ol>
+</section>
+
+<!-- ================================================================ BACK COVER -->
+<section class="contact dark screen" id="contact" data-label="Contact">
+  <div class="g12">
+    <p class="end__word" aria-hidden="true">Portfolio<sup class="mono">Vol. 01<br>End</sup></p>
+    <div class="end__date mono"><span>2024 — 2026</span></div>
+    <div class="end__col end__a"><span class="mono">Designer</span><p>Sarrón Harfsterkamp</p><p>Experimental modular product designer</p><p>Eindhoven, NL</p></div>
+    <div class="end__col end__b"><span class="mono">Contact</span><a href="mailto:shkamp8@gmail.com">shkamp8@gmail.com</a><a href="#">Instagram — TBD</a></div>
+    <div class="end__col end__c"><span class="mono">Contents</span><a href="flux-solid.html">01 Flux / Solid</a><a href="one-hundred.html">02 One / Hundred</a><a href="tension.html">03 Tension</a><a href="contour.html">04 Contour</a></div>
+    <div class="end__col end__d"><span class="mono">Works with</span><p>Metal</p><p>Electronics</p><p>Light</p></div>
+  </div>
+  <div class="foot">
+    <div class="rule mono"><span>© 2026 Sarrón Harfsterkamp</span><span>Press <b>G</b> for grid</span><span><a href="#top">Back to cover ↑</a></span></div>
+  </div>
+</section>
+
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>01 Flux / Solid — Sarrón Harfsterkamp</title>
+  <meta name="description" content="Flux / Solid — an interactive light object by Sarrón Harfsterkamp. One light module, endless patterns.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&family=Inter+Tight:wght@500;600&family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23F2F0EB'/%3E%3Crect x='2' y='2' width='4' height='4' fill='%23E86A33'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="gridlines" aria-hidden="true"><div class="g12"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__box"></span><span class="cursor__t">X 0000 · Y 00000</span></div>
+
+<header class="bar">
+  <a href="index.html#top" class="bar__logo" aria-label="Logo placeholder — back to home"><i></i><i></i><i></i><i></i><span class="mono">Logo</span></a>
+  <nav class="bar__nav mono">
+    <a href="index.html#about">About</a>
+    <a href="index.html#work">Contents</a>
+    <a href="flux-solid.html" class="is-active">01</a>
+    <a href="one-hundred.html">02</a>
+    <a href="tension.html">03</a>
+    <a href="contour.html">04</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+  <span class="bar__page mono">Project 01 / 04</span>
+  <span class="bar__prog" aria-hidden="true"></span>
+</header>
+
+<section class="p-hero" id="top">
+  <div>
+    <div class="rule mono"><span>01 — Fascination project</span><span>Surprise &amp; discovery</span><span>2025 — 2026</span></div>
+    <header class="p-head g12">
+      <div class="p-num">01</div>
+      <div class="p-title">
+        <h1 class="h-proj">Flux /<br>Solid</h1>
+        <p class="mono grey">One light module — endless patterns</p>
+      </div>
+      <dl class="spec">
+        <div><dt>Type</dt><dd>Interactive light object</dd></div>
+        <div><dt>Year</dt><dd>2025 — 2026</dd></div>
+      </dl>
+    </header>
+  </div>
+  <figure class="p-hero__img fig" style="--pos:50% 40%">
+    <div class="frame" style="height:100%"><img src="img/20260114-213459.jpg" alt="Mirror cell object in an aluminium frame"></div>
+    <figcaption class="mono">Fig. 01.00 — Mirror cells in aluminium frame, exhibition</figcaption>
+  </figure>
+</section>
+
+<main>
+  <div class="p-text g12">
+    <p class="p-lead">A project about <em>surprise and discovery</em>. One light module directs light into different patterns — the combination of buttons pressed determines which patterns become visible.</p>
+    <div class="p-toggle"><button class="more-btn mono" aria-expanded="false" aria-controls="m-p01"><span class="pm">+</span><span class="lbl" data-less="Close">Specs &amp; notes</span></button></div>
+    <div class="more p-more" id="m-p01"><div><div class="p-more__in">
+      <dl class="spec">
+        <div><dt>Material</dt><dd>Aluminium, mirror, 3D-printed parts</dd></div>
+        <div><dt>Tech</dt><dd>Servo motors, microcontroller, button input</dd></div>
+        <div><dt>Context</dt><dd>Fascination project</dd></div>
+      </dl>
+      <div class="p-note">
+        <span class="mono">For me —</span>
+        <p>An exploration of chaos and order, flux and solid, input and output, repeatability and unpredictability — and the space in between, where one becomes the other. Breaking expectations.</p>
+      </div>
+      <ul class="pairs mono">
+        <li>Chaos <i>↔</i> Order</li>
+        <li>Flux <i>↔</i> Solid</li>
+        <li>Input <i>↔</i> Output</li>
+        <li>Repeat <i>↔</i> Unpredict</li>
+      </ul>
+    </div></div></div>
+  </div>
+
+  <div class="console dark">
+    <div class="rule mono"><span>Interactive sketch</span><span>Control → Mirrors</span><span>Try it ↓</span></div>
+    <div class="g12">
+      <div class="console__intro">
+        <h3>21 buttons.<br>21 mirrors.<br>One surprise.</h3>
+        <p>Press the cells on the left — the mirrors on the right change direction. <b>Flux</b> breaks the order.</p>
+        <div class="console__ctl mono">
+          <button class="chip" id="flux" aria-pressed="false">Flux</button>
+          <button class="chip" id="reset">Reset</button>
+        </div>
+        <button class="more-btn mono" aria-expanded="false" aria-controls="m-console"><span class="pm">+</span><span class="lbl" data-less="Close">How it works</span></button>
+        <div class="more" id="m-console"><div>
+          <p>A simplified model of the object, based on the Voronoi study: every button turns its own mirror towards the light and pushes its neighbours away. Combined, they reinforce or cancel each other — the combination of buttons determines which pattern becomes visible.</p>
+        </div></div>
+      </div>
+      <figure class="vor vor--ctrl">
+        <svg id="ctrl" viewBox="-60 -60 120 120" aria-label="Control panel: 21 buttons"></svg>
+        <figcaption class="mono"><span>Control — 21 buttons</span><span>In <b id="vIn">00</b> / 21</span></figcaption>
+      </figure>
+      <figure class="vor vor--out">
+        <svg id="mirrors" viewBox="-66 -60 132 120" role="img" aria-label="Output: 21 tilting mirror cells"></svg>
+        <figcaption class="mono"><span>Output — 21 mirrors</span><span>Lit <b id="vOut">00</b> / 21</span></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="rule mono stage"><span><span class="pix">A</span>Explore</span><span>Fascination, sketches, first questions</span><span>01.01 — 01.08</span></div>
+  <div class="g12">
+    <figure class="fig" style="--c:1/6;--ar:3/2"><div class="frame"><img loading="lazy" src="img/275510039-ba71e38131-b.jpg" alt=""></div><figcaption><b>01.01</b> Patch panel — input as pattern</figcaption></figure>
+    <figure class="fig" style="--c:6/10;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251105-171621.jpg" alt=""></div><figcaption><b>01.02</b> Fascination board</figcaption></figure>
+    <figure class="fig" style="--c:10/-1;--ar:3/4"><div class="frame"><img loading="lazy" src="img/20251202-112232.jpg" alt=""></div><figcaption><b>01.03</b> Lamp · mirrors · panel · user</figcaption></figure>
+    <figure class="fig" style="--c:2/5;--ar:2/3"><div class="frame"><img loading="lazy" src="img/2026-01-15-031478-1.jpg" alt=""></div><figcaption><b>01.04</b> Notes</figcaption></figure>
+    <figure class="fig" style="--c:5/8;--ar:2/3"><div class="frame"><img loading="lazy" src="img/2026-01-15-031478-2.jpg" alt=""></div><figcaption><b>01.05</b> Flux or solid?</figcaption></figure>
+    <figure class="fig" style="--c:8/-1;--ar:3/2"><div class="frame"><img loading="lazy" src="img/2026-01-15-034358.jpg" alt=""></div><figcaption><b>01.06</b> Light-path sketches</figcaption></figure>
+    <figure class="fig" style="--c:1/8;--ar:2/1"><div class="frame"><img loading="lazy" src="img/schermafbeelding-2025-11-12-135114.jpg" alt=""></div><figcaption><b>01.07</b> Concept map</figcaption></figure>
+    <figure class="fig" style="--c:8/-1;--ar:4/3"><div class="frame"><img loading="lazy" src="img/schermafbeelding-2024-11-27-221327.jpg" alt=""></div><figcaption><b>01.08</b> Cell structures</figcaption></figure>
+  </div>
+
+  <div class="rule mono stage"><span><span class="pix">B</span>Discover</span><span>Generative cells, moving mirrors</span><span>01.09 — 01.15</span></div>
+  <div class="g12">
+    <figure class="fig" style="--c:1/7;--ar:16/9"><div class="frame"><img loading="lazy" src="img/screenshot-20251209-083328-chrome.jpg" alt=""></div><figcaption><b>01.09</b> Voronoi study</figcaption></figure>
+    <figure class="fig" style="--c:7/-1;--ar:16/9"><div class="frame"><img loading="lazy" src="img/screenshot-20251209-190037-gallery.jpg" alt=""></div><figcaption><b>01.10</b> Cell logic</figcaption></figure>
+    <figure class="fig" style="--c:1/7;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251209-191108.jpg" alt=""></div><figcaption><b>01.11</b> First servo + mirror test</figcaption></figure>
+    <figure class="fig" style="--c:7/10;--ar:3/4"><div class="frame"><img loading="lazy" src="img/20251209-175840.jpg" alt=""></div><figcaption><b>01.12</b> Two-axis mount</figcaption></figure>
+    <figure class="fig" style="--c:10/-1;--ar:3/4"><div class="frame"><img loading="lazy" src="img/20251209-175949.jpg" alt=""></div><figcaption><b>01.13</b> Tilted state</figcaption></figure>
+    <figure class="fig" style="--c:3/8;--ar:16/9"><div class="frame"><img loading="lazy" src="img/schermafbeelding-2025-12-09-191623.jpg" alt=""></div><figcaption><b>01.14</b> CAD — servo module</figcaption></figure>
+    <figure class="fig" style="--c:8/-1;--ar:16/9"><div class="frame"><img loading="lazy" src="img/schermafbeelding-2025-12-10-214006.jpg" alt=""></div><figcaption><b>01.15</b> Code — pattern logic</figcaption></figure>
+  </div>
+
+  <div class="rule mono stage"><span><span class="pix">C</span>Improve</span><span>Build, calibrate, repeat</span><span>01.16 — 01.22</span></div>
+  <div class="g12">
+    <figure class="fig" style="--c:1/5;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251216-103815.jpg" alt=""></div><figcaption><b>01.16</b> Template</figcaption></figure>
+    <figure class="fig" style="--c:5/9;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251219-005546.jpg" alt=""></div><figcaption><b>01.17</b> Servo layout</figcaption></figure>
+    <figure class="fig" style="--c:9/-1;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251219-104050.jpg" alt=""></div><figcaption><b>01.18</b> Cell frame</figcaption></figure>
+    <figure class="fig" style="--c:1/8;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251219-153334.jpg" alt=""></div><figcaption><b>01.19</b> Modules mounted</figcaption></figure>
+    <figure class="fig" style="--c:8/-1;--ar:3/4"><div class="frame"><img loading="lazy" src="img/20251219-224230.jpg" alt=""></div><figcaption><b>01.20</b> Rear — wiring</figcaption></figure>
+    <figure class="fig" style="--c:1/7;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20251221-213059.jpg" alt=""></div><figcaption><b>01.21</b> Calibration</figcaption></figure>
+    <figure class="fig" style="--c:7/-1;--ar:4/3"><div class="frame"><img loading="lazy" src="img/20260101-212020.jpg" alt=""></div><figcaption><b>01.22</b> Parts</figcaption></figure>
+  </div>
+
+  <figure class="bleed fig" style="--pos:50% 45%">
+    <div class="frame"><img loading="lazy" src="img/20260115-103958.jpg" alt="Exhibition setup of Flux / Solid"></div>
+    <figcaption class="mono">Fig. 01.23 — Exhibition, 2026</figcaption>
+  </figure>
+</main>
+
+<section class="next dark">
+  <div class="rule mono"><span>Next project</span><span>Modular lighting system</span><span>02 / 04</span></div>
+  <a class="next__link" href="one-hundred.html"><span class="pix">02</span><b>One / Hundred →</b><span class="thumb"><img loading="lazy" src="img/20251029-130600.jpg" alt=""></span></a>
+  <div class="foot">
+    <div class="rule mono"><span>© 2026 Sarrón Harfsterkamp</span><span><a href="index.html#work">← All projects</a></span><span><a href="#top">Back to top ↑</a></span></div>
+  </div>
+</section>
+
+<div class="lb" id="lb"><img alt=""><p class="mono"><span id="lbCap"></span><span>Esc / click to close</span></p></div>
+
+<script src="main.js"></script>
+</body>
+</html>
