@@ -5,6 +5,8 @@
   const root = document.documentElement;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const touch = !fine && (matchMedia("(pointer: coarse)").matches || "ontouchstart" in window);
+  if (touch) root.classList.add("touch");
   const pad2 = (n) => String(n).padStart(2, "0");
   const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
   const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -108,23 +110,65 @@
   const lens = $("#lens");
   if (lens) {
     const stack = $(".lens__stack", lens);
-    stack.addEventListener("mouseenter", () => lens.classList.add("on"));
-    stack.addEventListener("mouseleave", () => lens.classList.remove("on"));
-    stack.addEventListener("mousemove", (e) => {
-      const r = stack.getBoundingClientRect();
-      lens.style.setProperty("--x", e.clientX - r.left + "px");
-      lens.style.setProperty("--y", e.clientY - r.top + "px");
-    });
-    stack.addEventListener("touchstart", () => lens.classList.toggle("on"), { passive: true });
+    const setPos = (x, y) => { lens.style.setProperty("--x", x + "px"); lens.style.setProperty("--y", y + "px"); };
+    if (!touch) {
+      stack.addEventListener("mouseenter", () => lens.classList.add("on"));
+      stack.addEventListener("mouseleave", () => lens.classList.remove("on"));
+      stack.addEventListener("mousemove", (e) => {
+        const r = stack.getBoundingClientRect();
+        setPos(e.clientX - r.left, e.clientY - r.top);
+      });
+    } else {
+      // touch: the focus slowly wanders over the photo; a touch moves it to the finger
+      lens.classList.add("on");
+      let held = 0, raf2;
+      const wander = (now) => {
+        const r = stack.getBoundingClientRect();
+        if (now > held && r.width) {
+          const t = now / 1000;
+          setPos(r.width * (0.5 + 0.28 * Math.sin(t * 0.43)), r.height * (0.5 + 0.32 * Math.sin(t * 0.31 + 1.3)));
+        }
+        raf2 = requestAnimationFrame(wander);
+      };
+      if (!reduced) raf2 = requestAnimationFrame(wander);
+      const follow = (e) => {
+        const r = stack.getBoundingClientRect(), t = e.touches[0];
+        setPos(t.clientX - r.left, t.clientY - r.top); held = performance.now() + 2500;
+      };
+      stack.addEventListener("touchstart", follow, { passive: true });
+      stack.addEventListener("touchmove", follow, { passive: true });
+    }
   }
 
   /* ---------- contents showcase: two photos per project, slow diffuse swap ---------- */
   const shows = $$(".show__p");
   if (shows.length) {
+    const showEl = $(".show");
     shows.forEach((p) => {
-      p.addEventListener("mouseenter", () => { p.dataset.hold = "1"; p.classList.add("alt"); });
+      p.addEventListener("mouseenter", () => { if (touch) return; p.dataset.hold = "1"; p.classList.add("alt"); });
       p.addEventListener("mouseleave", () => { delete p.dataset.hold; });
+      // touch on a wide screen: first tap opens the panel, second tap opens the project
+      p.addEventListener("click", (e) => {
+        if (!touch || innerWidth <= 900 || p.classList.contains("active")) return;
+        e.preventDefault();
+        shows.forEach((q) => { q.classList.toggle("active", q === p); delete q.dataset.hold; });
+        showEl.classList.add("has-active");
+        p.dataset.hold = "1"; p.classList.add("alt");
+      });
+      const tap = document.createElement("span");
+      tap.className = "show__tap mono"; tap.textContent = "Tap again to open";
+      p.appendChild(tap);
     });
+    // touch on a phone: the panel in the middle of the carousel shows its second photo
+    if (touch && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((ents) => ents.forEach((en) => {
+        if (innerWidth > 900) return;
+        en.target.classList.toggle("alt", en.intersectionRatio > 0.75);
+        en.target.dataset.hold = en.intersectionRatio > 0.75 ? "1" : "";
+        if (!en.target.dataset.hold) delete en.target.dataset.hold;
+      }), { root: showEl, threshold: [0, 0.75, 1] });
+      shows.forEach((p) => io.observe(p));
+    }
     let k = 0;
     setInterval(() => {
       const p = shows[k % shows.length];
@@ -222,9 +266,44 @@
     });
     hero.addEventListener("mouseleave", () => { mx = my = -9999; });
     hero.addEventListener("click", (e) => {
-      if (e.target.closest("a, button, .lens")) return;
+      if (touch || e.target.closest("a, button, .lens")) return;
       for (const p of parts) { p.vx += (Math.random() - 0.5) * cell * 5; p.vy += (Math.random() - 0.5) * cell * 5; }
     });
+
+    // touch: the finger acts as the cursor, a tap pushes the modules locally
+    const burst = (x, y) => {
+      const R = cell * 14;
+      for (const p of parts) {
+        const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy) || 1;
+        if (d < R) { const f = (1 - d / R) * cell * 2.4; p.vx += (dx / d) * f; p.vy += (dy / d) * f; }
+      }
+    };
+    const tpos = (e) => { const r = cv.getBoundingClientRect(), t = e.touches[0]; return [t.clientX - r.left, t.clientY - r.top]; };
+    hero.addEventListener("touchstart", (e) => {
+      if (e.target.closest("a, button, .lens")) return;
+      const [x, y] = tpos(e); mx = x; my = y; burst(x, y); sweepUntil = performance.now() + 6000;
+    }, { passive: true });
+    hero.addEventListener("touchmove", (e) => { const [x, y] = tpos(e); mx = x; my = y; }, { passive: true });
+    hero.addEventListener("touchend", () => { mx = my = -9999; }, { passive: true });
+
+    // touch: a slow invisible "finger" sweeps through the name now and then
+    let sweepUntil = 0;
+    if (touch && !reduced) {
+      const sweep = () => {
+        if (running && performance.now() > sweepUntil) {
+          const t0 = performance.now(), y0 = H * (0.25 + Math.random() * 0.5), dir = Math.random() < 0.5 ? 1 : -1;
+          const step = (now) => {
+            const k = (now - t0) / 2600;
+            if (k > 1 || performance.now() < sweepUntil) { if (performance.now() >= sweepUntil) mx = my = -9999; return; }
+            mx = dir > 0 ? k * W : (1 - k) * W; my = y0 + Math.sin(k * Math.PI * 2) * H * 0.15;
+            requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
+        setTimeout(sweep, 5200);
+      };
+      setTimeout(sweep, 1800);
+    }
 
     new IntersectionObserver(([en]) => {
       visible = en.isIntersecting;
@@ -252,7 +331,7 @@
     const cv = $(".intro__cv", el), ctx = cv.getContext("2d");
     const bg = $(".intro__bg", el), ui = $(".intro__ui", el);
     const pctEl = $("#introPct"), stepEl = $("#introStep");
-    const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = root.clientWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
     cv.width = W * dpr; cv.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
