@@ -177,117 +177,64 @@
     }, 1700);
   }
 
-  /* ---------- other work: navigable sunflower / phyllotaxis field ---------- */
-  const owV = $("#owViewport"), owP = $("#owPlane");
-  if (owV && owP) {
-    const nodes = $$(".fig", owP);
-    const zoomEl = $("#owZoom"), focusEl = $("#owFocus");
-    const WORLD = 1240, CX = WORLD / 2, CY = WORLD / 2, GOLD = Math.PI * (3 - Math.sqrt(5)), C = 108;
-    const camera = { x: 0, y: 0, z: 0.6 };
-    nodes.forEach((node) => { $("img", node).loading = "eager"; });
-    let dragged = false;
-    const pointers = new Map();
-    const setCam = () => {
-      camera.z = Math.max(0.28, Math.min(1.9, camera.z));
-      owP.style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.z})`;
-      zoomEl.textContent = Math.round(camera.z * 100);
-    };
-    const fit = () => {
-      camera.z = Math.max(0.34, Math.min(1, Math.min((owV.clientWidth - 28) / 1120, (owV.clientHeight - 28) / 1120)));
-      camera.x = (owV.clientWidth - WORLD * camera.z) / 2;
-      camera.y = (owV.clientHeight - WORLD * camera.z) / 2;
-      setCam();
-    };
-    const zoomAt = (z, sx = owV.clientWidth / 2, sy = owV.clientHeight / 2) => {
-      const wx = (sx - camera.x) / camera.z, wy = (sy - camera.y) / camera.z, old = camera.z;
-      camera.z = Math.max(0.28, Math.min(1.9, z));
-      camera.x += wx * (old - camera.z); camera.y += wy * (old - camera.z);
-      setCam();
-    };
-    const layout = () => {
-      nodes.forEach((node, i) => {
-        const img = $("img", node), r = i === 0 ? 0 : C * Math.sqrt(i + .5), a = i * GOLD;
-        const x = CX + r * Math.cos(a), y = CY + r * Math.sin(a);
-        const ratio = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1.25;
-        const w = ratio >= 1.35 ? 205 : ratio >= 1 ? 185 : ratio >= .78 ? 158 : 138;
-        node.style.setProperty("--w", w + "px");
-        node.style.left = (x - w / 2) + "px";
-        node.style.top = (y - 80) + "px";
-        node.classList.add("in");
-        node.tabIndex = 0;
-        node.addEventListener("focus", () => { focusEl.textContent = $("b", node)?.textContent || "16 works"; });
-        node.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") { e.preventDefault(); $(".frame", node).click(); }
-        });
+  /* ---------- other work: sunflower-ordered photos in the page, never overlapping ---------- */
+  const owF = $("#owField");
+  if (owF) {
+    const nodes = $$(".fig", owF);
+    const AREA = 36000, GAP = 20, CAP = 22;
+    const pack = (ratios) => {
+      const GA = Math.PI * (3 - Math.sqrt(5)), c = Math.sqrt(AREA) * 0.62, sx = 1.5;
+      const it = ratios.map((r, i) => {
+        const w = Math.sqrt(AREA * r), h = w / r + CAP, rad = c * Math.sqrt(i + 0.5), a = i * GA;
+        const tx = rad * Math.cos(a) * sx, ty = rad * Math.sin(a);
+        return { w, h, tx, ty, x: tx, y: ty };
       });
-      requestAnimationFrame(fit);
+      const sep = () => {
+        let moved = false;
+        for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++) {
+          const A = it[i], B = it[j];
+          const dx = B.x - A.x || 0.01 * (j - i), dy = B.y - A.y || 0.01;
+          const ox = (A.w + B.w) / 2 + GAP - Math.abs(dx), oy = (A.h + B.h) / 2 + GAP - Math.abs(dy);
+          if (ox > 0 && oy > 0) {
+            moved = true;
+            if (ox < oy) { const m = ox / 2 * Math.sign(dx); A.x -= m; B.x += m; }
+            else { const m = oy / 2 * Math.sign(dy); A.y -= m; B.y += m; }
+          }
+        }
+        return moved;
+      };
+      for (let k = 0; k < 1200; k++) {
+        sep();
+        it.forEach((p) => { p.x += (p.tx - p.x) * 0.012; p.y += (p.ty - p.y) * 0.012; });
+      }
+      for (let k = 0; k < 400 && sep(); k++);
+      const x0 = Math.min(...it.map((p) => p.x - p.w / 2)), x1 = Math.max(...it.map((p) => p.x + p.w / 2));
+      const y0 = Math.min(...it.map((p) => p.y - p.h / 2)), y1 = Math.max(...it.map((p) => p.y + p.h / 2));
+      return { it, x0, y0, bw: x1 - x0, bh: y1 - y0 };
+    };
+    let layout = null;
+    const place = () => {
+      const W = owF.clientWidth;
+      if (W < 760) { owF.classList.add("stack"); owF.style.height = ""; nodes.forEach((n) => { n.style.width = ""; }); return; }
+      owF.classList.remove("stack");
+      if (!layout) layout = pack(nodes.map((n) => { const im = $("img", n); return im.naturalWidth && im.naturalHeight ? im.naturalWidth / im.naturalHeight : 1.3; }));
+      const k = W / layout.bw;
+      layout.it.forEach((p, i) => {
+        const n = nodes[i];
+        n.style.width = p.w * k + "px";
+        n.style.left = (p.x - p.w / 2 - layout.x0) * k + "px";
+        n.style.top = (p.y - p.h / 2 - layout.y0) * k + "px";
+      });
+      owF.style.height = layout.bh * k + "px";
     };
     Promise.all(nodes.map((n) => new Promise((resolve) => {
-      const img = $("img", n);
-      if (img.complete) return resolve();
-      img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true });
-    }))).then(layout);
-
-    $("#owMinus").addEventListener("click", () => zoomAt(camera.z / 1.18));
-    $("#owPlus").addEventListener("click", () => zoomAt(camera.z * 1.18));
-    $("#owReset").addEventListener("click", fit);
-    owV.addEventListener("dblclick", (e) => {
-      const r = owV.getBoundingClientRect();
-      zoomAt(camera.z * 1.35, e.clientX - r.left, e.clientY - r.top);
-    });
-    owV.addEventListener("keydown", (e) => {
-      const step = e.shiftKey ? 110 : 42;
-      if (e.key === "ArrowLeft") camera.x += step;
-      else if (e.key === "ArrowRight") camera.x -= step;
-      else if (e.key === "ArrowUp") camera.y += step;
-      else if (e.key === "ArrowDown") camera.y -= step;
-      else if (e.key === "+" || e.key === "=") { zoomAt(camera.z * 1.16); return; }
-      else if (e.key === "-") { zoomAt(camera.z / 1.16); return; }
-      else if (e.key === "0") { fit(); return; }
-      else return;
-      e.preventDefault(); setCam();
-    });
-    owV.addEventListener("wheel", (e) => {
-      if (!e.ctrlKey && !e.metaKey && !e.shiftKey) return;
-      e.preventDefault();
-      const r = owV.getBoundingClientRect();
-      zoomAt(camera.z * Math.exp(-e.deltaY * 0.0018), e.clientX - r.left, e.clientY - r.top);
-    }, { passive: false });
-    owV.addEventListener("pointerdown", (e) => {
-      owV.setPointerCapture(e.pointerId);
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, px: camera.x, py: camera.y });
-      dragged = false; owV.classList.add("dragging");
-    });
-    owV.addEventListener("pointermove", (e) => {
-      if (!pointers.has(e.pointerId)) return;
-      const old = pointers.get(e.pointerId);
-      const vals = [...pointers.values()];
-      if (pointers.size === 1) {
-        const dx = e.clientX - old.x, dy = e.clientY - old.y;
-        if (Math.abs(dx) + Math.abs(dy) > 5) dragged = true;
-        camera.x = old.px + dx; camera.y = old.py + dy; setCam();
-      } else if (pointers.size === 2) {
-        pointers.set(e.pointerId, { ...old, x: e.clientX, y: e.clientY });
-        const a = vals[0], b = vals[1], d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (!owV._pinch) owV._pinch = { d, z: camera.z };
-        zoomAt(owV._pinch.z * d / owV._pinch.d);
-        dragged = true;
-      }
-    });
-    const endPointer = (e) => {
-      pointers.delete(e.pointerId); owV._pinch = null;
-      if (!pointers.size) { owV.classList.remove("dragging"); setTimeout(() => { dragged = false; }, 0); }
-    };
-    owV.addEventListener("pointerup", endPointer);
-    owV.addEventListener("pointercancel", endPointer);
-    owV.addEventListener("click", (e) => {
-      if (!dragged) return;
-      e.preventDefault(); e.stopImmediatePropagation();
-    }, true);
-    let resizeT;
-    addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(fit, 120); });
+      const im = $("img", n);
+      if (im.complete) return resolve();
+      im.addEventListener("load", resolve, { once: true }); im.addEventListener("error", resolve, { once: true });
+    }))).then(place);
+    let owT;
+    addEventListener("resize", () => { clearTimeout(owT); owT = setTimeout(place, 120); });
   }
-
   /* ---------- pixel sampling ---------- */
   function sample(W, H, cell, draw) {
     const off = document.createElement("canvas");
