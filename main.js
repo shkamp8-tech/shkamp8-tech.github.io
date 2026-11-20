@@ -181,60 +181,63 @@
   const owF = $("#owField");
   if (owF) {
     const nodes = $$(".fig", owF);
-    const AREA = 36000, GAP = 20, CAP = 22;
-    const pack = (ratios) => {
-      const GA = Math.PI * (3 - Math.sqrt(5)), c = Math.sqrt(AREA) * 0.62, sx = 1.5;
-      const it = ratios.map((r, i) => {
-        const w = Math.sqrt(AREA * r), h = w / r + CAP, rad = c * Math.sqrt(i + 0.5), a = i * GA;
-        const tx = rad * Math.cos(a) * sx, ty = rad * Math.sin(a);
-        return { w, h, tx, ty, x: tx, y: ty };
+    const GA = Math.PI * (3 - Math.sqrt(5));
+    // golden-angle (sunflower) order; real, measured sizes (photo + caption) are separated so nothing can overlap
+    const pack = (items, gap, sx) => {
+      const c = Math.sqrt(items.reduce((a, b) => a + b.w * b.h, 0) / items.length) * 0.62;
+      const it = items.map((q, i) => {
+        const rad = c * Math.sqrt(i + 0.5), a = i * GA;
+        return { w: q.w, h: q.h, tx: rad * Math.cos(a) * sx, ty: rad * Math.sin(a), x: rad * Math.cos(a) * sx, y: rad * Math.sin(a) };
       });
       const sep = () => {
         let moved = false;
         for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++) {
-          const A = it[i], B = it[j];
-          const dx = B.x - A.x || 0.01 * (j - i), dy = B.y - A.y || 0.01;
-          const ox = (A.w + B.w) / 2 + GAP - Math.abs(dx), oy = (A.h + B.h) / 2 + GAP - Math.abs(dy);
+          const A = it[i], B = it[j], dx = B.x - A.x || 0.01 * (j - i), dy = B.y - A.y || 0.01;
+          const ox = (A.w + B.w) / 2 + gap - Math.abs(dx), oy = (A.h + B.h) / 2 + gap - Math.abs(dy);
           if (ox > 0 && oy > 0) {
             moved = true;
-            if (ox < oy) { const m = ox / 2 * Math.sign(dx); A.x -= m; B.x += m; }
-            else { const m = oy / 2 * Math.sign(dy); A.y -= m; B.y += m; }
+            if (ox < oy) { const m = (ox / 2) * Math.sign(dx); A.x -= m; B.x += m; }
+            else { const m = (oy / 2) * Math.sign(dy); A.y -= m; B.y += m; }
           }
         }
         return moved;
       };
-      for (let k = 0; k < 1200; k++) {
-        sep();
-        it.forEach((p) => { p.x += (p.tx - p.x) * 0.012; p.y += (p.ty - p.y) * 0.012; });
-      }
-      for (let k = 0; k < 400 && sep(); k++);
+      for (let k = 0; k < 1500; k++) { sep(); it.forEach((p) => { p.x += (p.tx - p.x) * 0.012; p.y += (p.ty - p.y) * 0.012; }); }
+      for (let k = 0; k < 800 && sep(); k++);
       const x0 = Math.min(...it.map((p) => p.x - p.w / 2)), x1 = Math.max(...it.map((p) => p.x + p.w / 2));
       const y0 = Math.min(...it.map((p) => p.y - p.h / 2)), y1 = Math.max(...it.map((p) => p.y + p.h / 2));
       return { it, x0, y0, bw: x1 - x0, bh: y1 - y0 };
     };
-    let layout = null;
+    const ratios = () => nodes.map((n) => { const im = $("img", n); return im.naturalWidth && im.naturalHeight ? im.naturalWidth / im.naturalHeight : 1.3; });
     const place = () => {
       const W = owF.clientWidth;
-      if (W < 760) { owF.classList.add("stack"); owF.style.height = ""; nodes.forEach((n) => { n.style.width = ""; }); return; }
+      if (W < 1000) { owF.classList.add("stack"); owF.style.height = ""; nodes.forEach((n) => { n.style.width = ""; n.style.left = ""; n.style.top = ""; }); return; }
       owF.classList.remove("stack");
-      if (!layout) layout = pack(nodes.map((n) => { const im = $("img", n); return im.naturalWidth && im.naturalHeight ? im.naturalWidth / im.naturalHeight : 1.3; }));
-      const k = W / layout.bw;
-      layout.it.forEach((p, i) => {
-        const n = nodes[i];
-        n.style.width = p.w * k + "px";
-        n.style.left = (p.x - p.w / 2 - layout.x0) * k + "px";
-        n.style.top = (p.y - p.h / 2 - layout.y0) * k + "px";
+      const r = ratios(), gap = Math.max(14, W / 70);
+      let area = 36000 * (W / 1360) ** 2, res = null;
+      for (let pass = 0; pass < 14; pass++) {
+        nodes.forEach((n, i) => { n.style.width = Math.sqrt(area * r[i]) + "px"; });
+        res = pack(nodes.map((n) => ({ w: n.offsetWidth, h: n.offsetHeight })), gap, 1.5);
+        const f = W / res.bw;
+        if (f >= 1 && f < 1.05) break;
+        area *= Math.min(1.25, Math.max(0.6, f * f * (f < 1 ? 0.985 : 1)));
+      }
+      const k = Math.max(1, W / res.bw);
+      res.it.forEach((q, i) => {
+        nodes[i].style.left = (q.x - q.w / 2 - res.x0) * k + "px";
+        nodes[i].style.top = (q.y - q.h / 2 - res.y0) * k + "px";
       });
-      owF.style.height = layout.bh * k + "px";
+      owF.style.height = res.bh * k + "px";
     };
     Promise.all(nodes.map((n) => new Promise((resolve) => {
       const im = $("img", n);
       if (im.complete) return resolve();
       im.addEventListener("load", resolve, { once: true }); im.addEventListener("error", resolve, { once: true });
-    }))).then(place);
+    }))).then(() => { place(); if (document.fonts) document.fonts.ready.then(place); });
     let owT;
     addEventListener("resize", () => { clearTimeout(owT); owT = setTimeout(place, 120); });
   }
+
   /* ---------- pixel sampling ---------- */
   function sample(W, H, cell, draw) {
     const off = document.createElement("canvas");
