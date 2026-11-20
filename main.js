@@ -177,6 +177,117 @@
     }, 1700);
   }
 
+  /* ---------- other work: navigable sunflower / phyllotaxis field ---------- */
+  const owV = $("#owViewport"), owP = $("#owPlane");
+  if (owV && owP) {
+    const nodes = $$(".fig", owP);
+    const zoomEl = $("#owZoom"), focusEl = $("#owFocus");
+    const WORLD = 1240, CX = WORLD / 2, CY = WORLD / 2, GOLD = Math.PI * (3 - Math.sqrt(5)), C = 108;
+    const camera = { x: 0, y: 0, z: 0.6 };
+    nodes.forEach((node) => { $("img", node).loading = "eager"; });
+    let dragged = false;
+    const pointers = new Map();
+    const setCam = () => {
+      camera.z = Math.max(0.28, Math.min(1.9, camera.z));
+      owP.style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.z})`;
+      zoomEl.textContent = Math.round(camera.z * 100);
+    };
+    const fit = () => {
+      camera.z = Math.max(0.34, Math.min(1, Math.min((owV.clientWidth - 28) / 1120, (owV.clientHeight - 28) / 1120)));
+      camera.x = (owV.clientWidth - WORLD * camera.z) / 2;
+      camera.y = (owV.clientHeight - WORLD * camera.z) / 2;
+      setCam();
+    };
+    const zoomAt = (z, sx = owV.clientWidth / 2, sy = owV.clientHeight / 2) => {
+      const wx = (sx - camera.x) / camera.z, wy = (sy - camera.y) / camera.z, old = camera.z;
+      camera.z = Math.max(0.28, Math.min(1.9, z));
+      camera.x += wx * (old - camera.z); camera.y += wy * (old - camera.z);
+      setCam();
+    };
+    const layout = () => {
+      nodes.forEach((node, i) => {
+        const img = $("img", node), r = i === 0 ? 0 : C * Math.sqrt(i + .5), a = i * GOLD;
+        const x = CX + r * Math.cos(a), y = CY + r * Math.sin(a);
+        const ratio = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1.25;
+        const w = ratio >= 1.35 ? 205 : ratio >= 1 ? 185 : ratio >= .78 ? 158 : 138;
+        node.style.setProperty("--w", w + "px");
+        node.style.left = (x - w / 2) + "px";
+        node.style.top = (y - 80) + "px";
+        node.classList.add("in");
+        node.tabIndex = 0;
+        node.addEventListener("focus", () => { focusEl.textContent = $("b", node)?.textContent || "16 works"; });
+        node.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") { e.preventDefault(); $(".frame", node).click(); }
+        });
+      });
+      requestAnimationFrame(fit);
+    };
+    Promise.all(nodes.map((n) => new Promise((resolve) => {
+      const img = $("img", n);
+      if (img.complete) return resolve();
+      img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true });
+    }))).then(layout);
+
+    $("#owMinus").addEventListener("click", () => zoomAt(camera.z / 1.18));
+    $("#owPlus").addEventListener("click", () => zoomAt(camera.z * 1.18));
+    $("#owReset").addEventListener("click", fit);
+    owV.addEventListener("dblclick", (e) => {
+      const r = owV.getBoundingClientRect();
+      zoomAt(camera.z * 1.35, e.clientX - r.left, e.clientY - r.top);
+    });
+    owV.addEventListener("keydown", (e) => {
+      const step = e.shiftKey ? 110 : 42;
+      if (e.key === "ArrowLeft") camera.x += step;
+      else if (e.key === "ArrowRight") camera.x -= step;
+      else if (e.key === "ArrowUp") camera.y += step;
+      else if (e.key === "ArrowDown") camera.y -= step;
+      else if (e.key === "+" || e.key === "=") { zoomAt(camera.z * 1.16); return; }
+      else if (e.key === "-") { zoomAt(camera.z / 1.16); return; }
+      else if (e.key === "0") { fit(); return; }
+      else return;
+      e.preventDefault(); setCam();
+    });
+    owV.addEventListener("wheel", (e) => {
+      if (!e.ctrlKey && !e.metaKey && !e.shiftKey) return;
+      e.preventDefault();
+      const r = owV.getBoundingClientRect();
+      zoomAt(camera.z * Math.exp(-e.deltaY * 0.0018), e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+    owV.addEventListener("pointerdown", (e) => {
+      owV.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, px: camera.x, py: camera.y });
+      dragged = false; owV.classList.add("dragging");
+    });
+    owV.addEventListener("pointermove", (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      const old = pointers.get(e.pointerId);
+      const vals = [...pointers.values()];
+      if (pointers.size === 1) {
+        const dx = e.clientX - old.x, dy = e.clientY - old.y;
+        if (Math.abs(dx) + Math.abs(dy) > 5) dragged = true;
+        camera.x = old.px + dx; camera.y = old.py + dy; setCam();
+      } else if (pointers.size === 2) {
+        pointers.set(e.pointerId, { ...old, x: e.clientX, y: e.clientY });
+        const a = vals[0], b = vals[1], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (!owV._pinch) owV._pinch = { d, z: camera.z };
+        zoomAt(owV._pinch.z * d / owV._pinch.d);
+        dragged = true;
+      }
+    });
+    const endPointer = (e) => {
+      pointers.delete(e.pointerId); owV._pinch = null;
+      if (!pointers.size) { owV.classList.remove("dragging"); setTimeout(() => { dragged = false; }, 0); }
+    };
+    owV.addEventListener("pointerup", endPointer);
+    owV.addEventListener("pointercancel", endPointer);
+    owV.addEventListener("click", (e) => {
+      if (!dragged) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+    }, true);
+    let resizeT;
+    addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(fit, 120); });
+  }
+
   /* ---------- pixel sampling ---------- */
   function sample(W, H, cell, draw) {
     const off = document.createElement("canvas");
