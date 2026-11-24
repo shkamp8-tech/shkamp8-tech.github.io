@@ -486,6 +486,8 @@ html.home { scroll-padding-top: 0; }
 .dark .fig figcaption b { color: var(--paper); }
 .fig.sm figcaption { font-size: 9.5px; }
 
+.fig.contain .frame { background: var(--paper-2); }
+.fig.contain img { object-fit: contain; }
 .bleed { position: relative; }
 .bleed .frame { cursor: zoom-in; }
 .bleed img { width: 100%; height: min(92vh, 62vw); object-fit: cover; object-position: var(--pos, 50% 50%); }
