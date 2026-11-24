@@ -644,7 +644,7 @@
   const scale = $("#scale");
   if (scale) {
     const tabs = $$("[role=tab]", scale), imgs = $$(".scale__view img", scale), label = $("#scaleLabel");
-    const names = ["Render · ×1 module", "Render · ×7 cluster", "Render · ×n chain", "AI visual based on a render · in space"];
+    const names = ["Render · ×1 module", "Render · ×16 cluster", "AI visual based on a render · ×16 in space"];
     const go = (i) => {
       tabs.forEach((t, k) => t.setAttribute("aria-selected", k === i));
       imgs.forEach((im, k) => im.classList.toggle("on", k === i));
