@@ -1,5 +1,10 @@
-/* Sarrón Harfsterkamp — portfolio draft v0.2 */
+/* Sarrón Harfsterkamp, portfolio */
 (() => {
+  // clean address bar: no .html in the URL
+  if (location.protocol.startsWith("http")) {
+    const clean = location.pathname.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "") || "/";
+    if (clean !== location.pathname) history.replaceState(null, "", clean + location.search + location.hash);
+  }
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const root = document.documentElement;
@@ -643,7 +648,7 @@
     const go = (i) => {
       tabs.forEach((t, k) => t.setAttribute("aria-selected", k === i));
       imgs.forEach((im, k) => im.classList.toggle("on", k === i));
-      label.textContent = `Fig. 02.R${i + 1} — ${names[i]}`;
+      label.textContent = `Fig. 02.R${i + 1} ${names[i]}`;
     };
     let i = 0;
     const auto = setInterval(() => go((i = (i + 1) % tabs.length)), 3200);
